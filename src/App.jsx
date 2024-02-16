@@ -1,8 +1,9 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import Notification from "./components/Notification";
 import Blog from "./components/Blog";
 import LoginForm from "./components/LoginForm";
 import LoggedIn from "./components/LoggedIn";
+import Togglable from "./components/Togglable";
 import BlogForm from "./components/BlogForm";
 import Footer from "./components/Footer";
 
@@ -17,19 +18,24 @@ const App = () => {
   const [blogs, setBlogs] = useState([]);
   const [messuMessage, setMessuMessage] = useState(null);
 
-  const [newTitle, setNewTitle] = useState("");
-  const [newAuthor, setNewAuthor] = useState("");
-  const [newUrl, setNewUrl] = useState("");
-
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [user, setUser] = useState(null);
 
-  function nollaaNewFormi() {
-    setNewAuthor("");
-    setNewTitle("");
-    setNewUrl("");
-  }
+  useEffect(() => {
+    blogService.getAll().then((blogs) => setBlogs(blogs));
+  }, []);
+
+  useEffect(() => {
+    const loggedUserJSON = window.localStorage.getItem("loggedBlogAppUser");
+    if (loggedUserJSON) {
+      const user = JSON.parse(loggedUserJSON);
+      setUser(user);
+      blogService.setToken(user.token);
+    }
+  }, []);
+
+  const blogFormRef = useRef();
 
   function nollaaLoginFormi() {
     setUsername("");
@@ -52,6 +58,39 @@ const App = () => {
     venttaaJaNollaaNotifikaatio();
   };
 
+  const blogForm = () => (
+    <Togglable buttonLabel="new blog" ref={blogFormRef}>
+      <BlogForm createBlog={addBlog} />
+    </Togglable>
+  );
+
+  const addBlog = (blogObject) => {
+    blogFormRef.current.toggleVisibility();
+    blogService.create(blogObject).then((returnedBlog) => {
+      //setBlogs(blogs.concat(returnedBlog));
+      blogService.getAll().then((blogs) => setBlogs(blogs));
+      setMessuMessage(`a new blog ${blogObject.title} by ${blogObject.author}`);
+    });
+    venttaaJaNollaaNotifikaatio();
+  };
+
+  const updateBlog = (blogObject) => {
+    blogService.update(blogObject.id, blogObject).then((returnedBlog) => {
+      //setBlogs(blogs.concat(returnedBlog));
+      blogService.getAll().then((blogs) => setBlogs(blogs));
+      setMessuMessage(`a blog ${blogObject.title} liked`);
+    });
+    venttaaJaNollaaNotifikaatio();
+  };
+
+  const deleteBlog = (poistettavaBlogObject) => {
+    blogService.poista(poistettavaBlogObject.id).then((returnedBlog) => {
+      blogService.getAll().then((blogs) => setBlogs(blogs));
+      setMessuMessage(`a blog ${poistettavaBlogObject.title} removed`);
+    });
+    venttaaJaNollaaNotifikaatio();
+  };
+  /*
   const addBlog = (event) => {
     event.preventDefault();
 
@@ -75,22 +114,17 @@ const App = () => {
           nollaaNewFormi();
         });
       } catch (error) {
-        /*
-            setPersons(
-              persons.filter((n) => n.name !== nameAndNumberObject.name)
-            );
-            */
         errori = true;
         setMessuMessage(`Adding '${newBlogObject.title}' fails...`);
       }
     }
     venttaaJaNollaaNotifikaatio();
   };
+*/
 
   const handleLogin = async (event) => {
     event.preventDefault();
 
-    //console.log("logging in with", username, password);
     try {
       const user = await loginService.login({
         username,
@@ -104,23 +138,14 @@ const App = () => {
       nollaaLoginFormi();
     } catch (exception) {
       errori = true;
-      setMessuMessage("wrong credentials");
+      setMessuMessage(exception.response.data.error);
     }
     venttaaJaNollaaNotifikaatio();
   };
 
-  useEffect(() => {
-    blogService.getAll().then((blogs) => setBlogs(blogs));
-  }, []);
-
-  useEffect(() => {
-    const loggedUserJSON = window.localStorage.getItem("loggedBlogAppUser");
-    if (loggedUserJSON) {
-      const user = JSON.parse(loggedUserJSON);
-      setUser(user);
-      blogService.setToken(user.token);
-    }
-  }, []);
+  const sortatutBlogit = blogs.sort(function (a, b) {
+    return b.likes - a.likes;
+  });
 
   return (
     <div>
@@ -139,19 +164,17 @@ const App = () => {
       {user && (
         <div>
           <LoggedIn inessaNyt={user.name} klikki={logOut} />
-          <BlogForm
-            onSubmit={addBlog}
-            valueT={newTitle}
-            onChangeT={({ target }) => setNewTitle(target.value)}
-            valueA={newAuthor}
-            onChangeA={({ target }) => setNewAuthor(target.value)}
-            valueU={newUrl}
-            onChangeU={({ target }) => setNewUrl(target.value)}
-          />
+          {blogForm()}
           <br></br>
           <div>
-            {blogs.map((blog) => (
-              <Blog key={blog.id} blog={blog} />
+            {sortatutBlogit.map((blog) => (
+              <Blog
+                key={blog.id}
+                blog={blog}
+                user={user}
+                updatedBlogObject={updateBlog}
+                poistettavaBlogObject={deleteBlog}
+              />
             ))}
           </div>
         </div>
