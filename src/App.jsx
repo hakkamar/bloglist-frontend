@@ -75,19 +75,42 @@ const App = () => {
   };
 
   const updateBlog = (blogObject) => {
-    blogService.update(blogObject.id, blogObject).then((returnedBlog) => {
-      //setBlogs(blogs.concat(returnedBlog));
-      blogService.getAll().then((blogs) => setBlogs(blogs));
-      setMessuMessage(`a blog ${blogObject.title} liked`);
-    });
+    blogService
+      .update(blogObject.id, blogObject)
+      .then((returnedBlog) => {
+        setBlogs(
+          blogs.map((blog) => (blog.id !== blogObject.id ? blog : blogObject))
+        );
+        setMessuMessage(`a blog ${blogObject.title} liked`);
+      })
+      .catch((error) => {
+        errori = true;
+        setMessuMessage(
+          `Blog '${blogObject.title}' was already removed from server`
+        );
+        // puppua olemassa, joten haetaan blogit uusiksi
+        blogService.getAll().then((blogs) => setBlogs(blogs));
+      });
     venttaaJaNollaaNotifikaatio();
   };
 
   const deleteBlog = (poistettavaBlogObject) => {
-    blogService.poista(poistettavaBlogObject.id).then((returnedBlog) => {
-      blogService.getAll().then((blogs) => setBlogs(blogs));
-      setMessuMessage(`a blog ${poistettavaBlogObject.title} removed`);
-    });
+    blogService
+      .poista(poistettavaBlogObject.id)
+      .then(() => {
+        blogService.getAll().then((blogs) => setBlogs(blogs));
+        setMessuMessage(`a blog ${poistettavaBlogObject.title} removed`);
+      })
+      .catch(() => {
+        //.catch((error) => {
+        //console.log("error", error);
+        errori = true;
+        setMessuMessage(
+          `Blog '${poistettavaBlogObject.title}' was already removed from server`
+        );
+        // puppua olemassa, joten haetaan blogit uusiksi
+        blogService.getAll().then((blogs) => setBlogs(blogs));
+      });
     venttaaJaNollaaNotifikaatio();
   };
   /*

@@ -15,7 +15,7 @@ const Blog = ({ blog, user, updatedBlogObject, poistettavaBlogObject }) => {
     klikattu !== blog.id ? setKlikattu(blog.id) : setKlikattu("");
   };
 
-  const tykkaaTasta = (blog) => {
+  const tykkaaTasta = () => {
     updatedBlogObject({
       author: blog.author,
       user: blog.user,
@@ -43,23 +43,22 @@ const Blog = ({ blog, user, updatedBlogObject, poistettavaBlogObject }) => {
 
   if (blog.id === klikattu) {
     return (
-      <div style={blogStyle}>
-        <div>
-          <b>
-            {blog.title} by {blog.author} {""}
-          </b>
-          <button onClick={() => asetaKlikkaus()}>hide</button>
-        </div>
+      <div className="blog" style={blogStyle}>
+        <b className="otsikko">
+          {blog.title} by {blog.author} {""}
+        </b>
+        <button onClick={() => asetaKlikkaus()}>hide</button>
+        <br></br>
         {blog.url}
         <br></br>
         <div>
           likes: {blog.likes}{" "}
-          <button name="like" type="button" onClick={() => tykkaaTasta(blog)}>
+          <button name="like" type="button" onClick={() => tykkaaTasta()}>
             Like
           </button>
         </div>
         <br></br>
-        Added by {blog.user.name}
+        {blog.user !== null && <div>Added by {blog.user.name} </div>}
         <br></br>
         {samaUseri && (
           <div>
@@ -76,13 +75,11 @@ const Blog = ({ blog, user, updatedBlogObject, poistettavaBlogObject }) => {
     );
   } else {
     return (
-      <div style={blogStyle}>
-        <div onClick={() => asetaKlikkaus()}>
-          <b>
-            {blog.title} by {blog.author} {""}
-          </b>
-          <button onClick={() => asetaKlikkaus()}>view</button>
-        </div>
+      <div className="blog" style={blogStyle}>
+        <b className="otsikko">
+          {blog.title} by {blog.author} {""}
+        </b>
+        <button onClick={() => asetaKlikkaus()}>view</button>
       </div>
     );
   }

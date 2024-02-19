@@ -10,7 +10,7 @@ const LoginForm = ({
   <div>
     <h3>Log in to application</h3>
 
-    <form onSubmit={onSubmit}>
+    <form className="Loginformi" onSubmit={onSubmit}>
       <div>
         username
         <input
