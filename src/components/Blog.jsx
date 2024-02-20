@@ -43,17 +43,24 @@ const Blog = ({ blog, user, updatedBlogObject, poistettavaBlogObject }) => {
 
   if (blog.id === klikattu) {
     return (
-      <div className="blog" style={blogStyle}>
+      <div id="kaikkiTiedot" className="blog" style={blogStyle}>
         <b className="otsikko">
           {blog.title} by {blog.author} {""}
         </b>
-        <button onClick={() => asetaKlikkaus()}>hide</button>
+        <button id="hide" onClick={() => asetaKlikkaus()}>
+          hide
+        </button>
         <br></br>
         {blog.url}
         <br></br>
         <div>
           likes: {blog.likes}{" "}
-          <button name="like" type="button" onClick={() => tykkaaTasta()}>
+          <button
+            id="like"
+            name="like"
+            type="button"
+            onClick={() => tykkaaTasta()}
+          >
             Like
           </button>
         </div>
@@ -75,11 +82,13 @@ const Blog = ({ blog, user, updatedBlogObject, poistettavaBlogObject }) => {
     );
   } else {
     return (
-      <div className="blog" style={blogStyle}>
+      <div id="osaTiedot" className="blog" style={blogStyle}>
         <b className="otsikko">
           {blog.title} by {blog.author} {""}
         </b>
-        <button onClick={() => asetaKlikkaus()}>view</button>
+        <button id="view" onClick={() => asetaKlikkaus()}>
+          view
+        </button>
       </div>
     );
   }

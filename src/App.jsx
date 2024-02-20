@@ -66,29 +66,37 @@ const App = () => {
 
   const addBlog = (blogObject) => {
     blogFormRef.current.toggleVisibility();
-    blogService.create(blogObject).then((returnedBlog) => {
-      //setBlogs(blogs.concat(returnedBlog));
-      blogService.getAll().then((blogs) => setBlogs(blogs));
-      setMessuMessage(`a new blog ${blogObject.title} by ${blogObject.author}`);
-    });
+    blogService
+      .create(blogObject)
+      .then(() => {
+        //setBlogs(blogs.concat(returnedBlog));
+        blogService.getAll().then((blogs) => setBlogs(blogs));
+        setMessuMessage(
+          `a new blog ${blogObject.title} by ${blogObject.author}`
+        );
+      })
+      .catch(() => {
+        errori = true;
+        setMessuMessage(`Adding '${blogObject.title}' fails...`);
+      });
     venttaaJaNollaaNotifikaatio();
   };
 
   const updateBlog = (blogObject) => {
     blogService
       .update(blogObject.id, blogObject)
-      .then((returnedBlog) => {
+      .then(() => {
         setBlogs(
           blogs.map((blog) => (blog.id !== blogObject.id ? blog : blogObject))
         );
         setMessuMessage(`a blog ${blogObject.title} liked`);
       })
-      .catch((error) => {
+      .catch(() => {
         errori = true;
         setMessuMessage(
           `Blog '${blogObject.title}' was already removed from server`
         );
-        // puppua olemassa, joten haetaan blogit uusiksi
+        // puppua olemassa, joten haetaan varmuuden välttämiseksi blogit uusiksi
         blogService.getAll().then((blogs) => setBlogs(blogs));
       });
     venttaaJaNollaaNotifikaatio();
@@ -113,37 +121,6 @@ const App = () => {
       });
     venttaaJaNollaaNotifikaatio();
   };
-  /*
-  const addBlog = (event) => {
-    event.preventDefault();
-
-    if (!newTitle || !newAuthor || !newUrl) {
-      errori = true;
-      setMessuMessage(`a new blog needs Title, Author and URL. Try again.`);
-    } else {
-      try {
-        const newBlogObject = {
-          title: newTitle,
-          author: newAuthor,
-          url: newUrl,
-          likes: 0,
-        };
-
-        blogService.create(newBlogObject).then((returnedBlog) => {
-          setBlogs(blogs.concat(returnedBlog));
-          setMessuMessage(
-            `a new blog ${newBlogObject.title} by ${newBlogObject.author}`
-          );
-          nollaaNewFormi();
-        });
-      } catch (error) {
-        errori = true;
-        setMessuMessage(`Adding '${newBlogObject.title}' fails...`);
-      }
-    }
-    venttaaJaNollaaNotifikaatio();
-  };
-*/
 
   const handleLogin = async (event) => {
     event.preventDefault();
@@ -157,7 +134,7 @@ const App = () => {
 
       blogService.setToken(user.token);
       setUser(user);
-      setMessuMessage(`Wellcome ${user.name}`);
+      setMessuMessage(`Welcome ${user.name}`);
       nollaaLoginFormi();
     } catch (exception) {
       errori = true;

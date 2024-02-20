@@ -1,4 +1,4 @@
-import React from "react";
+//import React from "react";
 import { render, screen } from "@testing-library/react";
 import "@testing-library/jest-dom";
 import BlogForm from "./BlogForm";
@@ -15,7 +15,7 @@ test("<BlogForm /> updates parent state and calls onSubmit", async () => {
      Huom myös  getByPlaceholderText...
      ja querySelector + id
 
-    Komento getByText  etsii elementtiä missä on ainoastaan parametrina teksti eikä mitään muuta. 
+    Komento getByText  etsii elementtiä missä on ainoastaan parametrina teksti eikä mitään muuta.
     Jos halutaan etsiä komponenttia joka sisältää tekstin, voidaan joko lisätä komennolle ekstraoptio:
     const element = screen.getByText(
         'Does not work anymore :(', { exact: false })
